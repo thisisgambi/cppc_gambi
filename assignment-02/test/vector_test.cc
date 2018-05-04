@@ -150,7 +150,7 @@ TEST_F(VectorTest, VectorConcept)
   ASSERT_EQ(false, v.size());
   ASSERT_EQ(true, v.empty());
   
-  delete vec;
+  //delete vec;
   //delete veccopy;
 }
 
