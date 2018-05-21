@@ -19,7 +19,7 @@ iterator & operator++() {
 
 namespace cpppc {
 
-  template<typename ValueT, ValueT default_value> class list;
+ // template<typename ValueT, ValueT default_value> class list;
   // list<int32_t, -1>
   template <
     typename ValueT,
@@ -27,6 +27,12 @@ namespace cpppc {
   class list {
     typedef list<ValueT, default_value> self_t;
   public:
+    
+    struct list_node {
+       list_node * next;
+       ValueT      value;
+    };
+
     // list<T>::iterator
     class iterator {
        typedef typename
@@ -41,14 +47,30 @@ namespace cpppc {
          self_t;
     public:
        iterator() = delete;
-
+/*
        iterator(const list_node_t & ln)
-       : _list_node(ln)
-       { }
+       //: _list_node(ln)
+       { 
+         _list_node = new list_node();
+         _list_node->next = ln.next;
+         _list_node->value = ln.value;
+       }
+*/
+       iterator(list_node_t * ln)
+       //: _list_node(ln)
+       {
+        _list_node = ln;
+       }
 
        iterator & operator++() {
           _list_node = _list_node.next;
           return *this;
+       }
+
+       iterator operator++(int) {
+          iterator old = *this;
+          _list_node = _list_node->next;
+          return old;
        }
 
        iterator operator=(const iterator & rhs){
@@ -57,12 +79,7 @@ namespace cpppc {
          }
          return *this;
        }
-
-       iterator operator++(int) {
-          iterator old = *this;
-          _list_node = _list_node.next;
-          return old;
-       }
+    
 
        // int * ptr;
        //
@@ -95,42 +112,101 @@ namespace cpppc {
        list_node_t * _list_node;
     };
 
-    struct list_node {
-       list_node * next;
-       ValueT      value;
-    };
+    
     
   public:
     list()
-    : _begin(iterator(*this))
-    , _end(iterator(*this))
+    : _begin( _head )
+    , _end( _head )
     { }
 
     // list<uint32_t>(list<int32_t>()) says 'nouh'
     list(const self_t & other)             = default;
-    self_t & operator=(const self_t & rhs) = default;
+
+
+    ~list(){
+      while(!(_head == nullptr )){
+        pop_front();
+      }
+      //clear()
+      delete _head;
+    }
+    
+    self_t & operator=(const self_t & rhs){  // = default ?
+      if(_size!=0){
+        while(_head->next != nullptr){
+          //list_node temp = _head;
+          //delete _head;
+          //_head = temp;
+          //delete temp;
+          
+          // why not use pop_front()?
+          pop_front();
+        }
+      }
+      _begin = rhs.begin();
+      _end = rhs.end();
+      _size = rhs.size();
+      return *this;
+    }
+
+
+    bool operator==(const self_t & other){
+      if(!(this == &other)){ 
+
+        if(!(size() == other.size())){
+          return false;
+        }
+        if(_size == 0){
+         return true;
+        } 
+        iterator pos1 = begin();
+        iterator pos2 = other.begin();
+        while(!(pos1 == end() )
+          //&& !(pos2 == end() ))
+          ){
+          if(!(pos1 == pos2)){ 
+            return false;
+          }
+          pos1++;
+          pos2++;
+        }
+      }
+      // are both iterators at the end ?
+      //if(  pos1 == end() 
+      //  && pos2 == end())
+      //{
+
+        return true;
+      //}
+      //return false;
+    }
 
     // list<int> l;
     // l_begin = l.begin();
     // ++l_begin;
-    iterator begin()  { _begin; }
+    iterator begin()  { return _begin; }
+    iterator begin() const {return _begin;}
     // list<T> l;
     // *l.end();
-    iterator end()    { _end; }
+    iterator end()    const { return iterator(nullptr); }
+
 
     void push_front(ValueT value)
     {
       list_node * ln = new list_node();
-      ln->next = &_head;
+      ln->next = _head;
       ln->value = value;
-      _head = *ln;
+      _head = ln;
+      _size++;
     }
 
     ValueT pop_front(){
-      list_node * update = _head.next;
-      ValueT ret = _head.value;
+      list_node * update = _head->next;
+      ValueT ret = _head->value;
       delete _head;
-      _head = *update;
+      _head = update;
+      _size--;
       return ret;
     }
     
@@ -142,17 +218,25 @@ namespace cpppc {
       ln->next = pos._list_node->next;
       ln->value = value;
       pos._list_node.next = ln;
+      _size++;
     }
     
+    size_t size() const {
+      return _size;
+    }
     
   private:
     // same as = { }
-    list_node _head        = { nullptr, default_value };
-    static list_node _tail = { nullptr, default_value };
+    list_node * _head = new list_node{ nullptr, default_value };
+    //static constexpr list_node _tail = { nullptr, default_value };
+
+    // to maintain O(1) for size
+    // otherwise we to navigate trough all nodes
+    size_t _size = 0;
 
     // self_t * this
-
-    iterator  _begin = *this;
+    // iterator  _begin = *this;
+    iterator  _begin = iterator{_head};
     iterator  _end;
   };
 

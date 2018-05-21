@@ -1,6 +1,11 @@
+#include "TestBase.h"
 
-#include  <gtest/gtest.h>
-  
+#include <gtest/gtest.h>
+
+
+using ::testing::UnitTest;
+using ::testing::TestEventListeners;
+
 int main(int argc, char * argv[])
 {
   // Init GoogleTest (strips gtest arguments from argv)

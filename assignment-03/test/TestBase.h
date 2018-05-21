@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-
+#if 0
 namespace testing {
 namespace internal {
 
@@ -21,6 +21,7 @@ extern void ColoredPrintf(
 
 } // namespace internal
 } // namespace testing
+#endif
 
 #define LOG_MESSAGE(...) do { \
   char buffer[300]; \
@@ -28,8 +29,7 @@ extern void ColoredPrintf(
   const char * filebase = strrchr(filepath, '/'); \
   const char * filename = (filebase != 0) ? filebase + 1 : filepath; \
   sprintf(buffer, __VA_ARGS__); \
-  testing::internal::ColoredPrintf( \
-    testing::internal::COLOR_YELLOW, \
+  printf( \
     "[=   LOG  =] %*s :%*d | %s \n", \
     24, filename, 4, __LINE__, buffer); \
 } while(0)

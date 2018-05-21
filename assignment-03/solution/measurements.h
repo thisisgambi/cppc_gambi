@@ -50,7 +50,7 @@ public:
     _values.push_back(val);
   }
 
-  size_t size(){
+  size_type size(){
     return _values.size();
   }
 

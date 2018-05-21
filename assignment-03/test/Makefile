@@ -6,7 +6,7 @@ LDFLAGS=-pthread ~/opt/gtest/lib/libgtest.a
 INCLUDES=-I/home/g4mb1/opt/gtest/include -I../
 
 OBJS = 		testsuite.o \
-			measurements_test.o
+			list_test.o
 
 .DEFAULT: all
 all: $(OBJS) testsuite.bin
