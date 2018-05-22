@@ -1,3 +1,4 @@
+#include <cstdlib>
 //#include <iterator>
 
 /*
@@ -45,6 +46,21 @@ namespace cpppc {
        typedef typename
          list_t::iterator
          self_t;
+       typedef int 
+         difference_type;
+       typedef 
+         ValueT 
+         value_type;
+       typedef 
+         ValueT *
+         pointer;
+       typedef 
+         ValueT &
+         reference;
+       typedef typename
+         std::forward_iterator_tag
+         iterator_category;
+ 
     public:
        iterator() = delete;
 /*
@@ -134,18 +150,20 @@ namespace cpppc {
     
     self_t & operator=(const self_t & rhs){  // = default ?
       if(_size!=0){
+        std::cout << "operator= - size > 0";
         while(_head->next != nullptr){
-          //list_node temp = _head;
-          //delete _head;
-          //_head = temp;
-          //delete temp;
+          list_node * temp = _head->next;
+          delete _head;
+          _head = temp;
+          delete temp;
           
           // why not use pop_front()?
-          pop_front();
+          //pop_front();
         }
       }
-      _begin = rhs.begin();
-      _end = rhs.end();
+      _head        = rhs._head;
+      _head->value = *(rhs.begin());
+      _head->next  = rhs._head->next;
       _size = rhs.size();
       return *this;
     }
