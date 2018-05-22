@@ -1,5 +1,5 @@
 #include <cstdlib>
-//#include <iterator>
+#include <iterator>
 
 /*
 // it++; -> old position
@@ -57,7 +57,7 @@ namespace cpppc {
        typedef 
          ValueT &
          reference;
-       typedef typename
+       typedef
          std::forward_iterator_tag
          iterator_category;
  
@@ -116,11 +116,16 @@ namespace cpppc {
          return _list_node->value;
        }
 
-       bool operator==(const self_t & rhs) {
+       bool operator==(const iterator & rhs) {
          return  (this == &rhs || // identity
                    // ?? *_list_node == rhs._list_node ??
-                   ( _list_node == rhs._list_node &&
-                     _list_node->value == rhs._list_node->value));
+                //   ( _list_node == rhs._list_node &&
+                //     _list_node->value == rhs._list_node->value));
+                   (
+                    this++ == rhs++ &&
+                    *this  == *(rhs)
+                   )
+                 )
        }
 
     private:
@@ -150,7 +155,7 @@ namespace cpppc {
     
     self_t & operator=(const self_t & rhs){  // = default ?
       if(_size!=0){
-        std::cout << "operator= - size > 0";
+        //std::cout << "operator= - size > 0";
         while(_head->next != nullptr){
           list_node * temp = _head->next;
           delete _head;
@@ -160,11 +165,22 @@ namespace cpppc {
           // why not use pop_front()?
           //pop_front();
         }
+        _size = 0;
       }
-      _head        = rhs._head;
-      _head->value = *(rhs.begin());
-      _head->next  = rhs._head->next;
-      _size = rhs.size();
+      _head = new list_node{nullptr, 0};
+//      _head = rhs._head;
+      _size = rhs.size();   
+      if(! (rhs.size() == 0)) {
+        _head->value = rhs._head->value;
+        _head->next  = rhs._head->next;
+        _size = rhs.size();
+      }
+      else{
+        
+        //_head->value = *(rhs.begin());
+        
+      }
+      
       return *this;
     }
 
@@ -183,9 +199,15 @@ namespace cpppc {
         while(!(pos1 == end() )
           //&& !(pos2 == end() ))
           ){
+          /*
           if(!(pos1 == pos2)){ 
             return false;
           }
+          */
+          if(!(*pos1 == *pos2)){
+            return false;
+          }
+
           pos1++;
           pos2++;
         }
