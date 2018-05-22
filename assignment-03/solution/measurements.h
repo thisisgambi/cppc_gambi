@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cmath>
+#include <numeric>
 #include <cstdlib>
 
 namespace cpppc {
@@ -50,18 +51,18 @@ public:
     _values.push_back(val);
   }
 
-  size_type size(){
+  size_t size(){
     return _values.size();
   }
 
   value_t median() const{
     //ret = std::static_cast<self_t>(_values.size()/2);
     //sort in ascending order:
-    std::vector<value_t> _values_tmp = _values.sort(
-                                            _values.begin() 
-                                          , _values.end());
+    std::vector<value_t> _values_tmp {_values};
+
+    _values_tmp.sort(_values_tmp.begin(), _values_tmp.end());
     //_values_tmp.sort()
-    const size_type & div = static_cast<size_type>(2);
+    /*const size_type & div = static_cast<size_type>(2);
     size_type mod = modulus(_values.size(), div);
 
     size_type mid = _values.size()/2;
@@ -83,15 +84,32 @@ public:
         it++;
       }
       ret = *it; 
-    }
-    return ret;
+    }*/
+
+    return _values_tmp.at(_values_tmp.size());
   }
 
-  double mean() const;
+  double mean() const{
+    T sum = std::accumulate(
+        _values.begin()
+      , _values.end()
+      , 0);
+    return sum/_values.size();
+  }
 
-  double variance() const;
+  double variance() const{
+    double mn = mean();
+    auto sum = 0;
+    for(int idx=0;idx<_values.size();idx++)
+    {
+      sum += (_values.at(idx)-mn)^2;
+    }
+    return sum/_values.size();
+  }
 
-  double sigma() const;
+  double sigma() const{
+    return std::sqrt(variance());
+  }
 
 private:
 
